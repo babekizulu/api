@@ -7,6 +7,7 @@
 const http = require('http');
 const url = require('url');
 const StringDecoder = require('string_decoder').StringDecoder;
+const config = require('./config');
 
 //The server should respond to all requests with a string
 const server = http.createServer((req, res) => {
@@ -31,7 +32,7 @@ const server = http.createServer((req, res) => {
     let buffer = '';
     req.on('data', data => {
         buffer += decoder.write(data);
-    })
+    });
 
     req.on('end', () => {
         buffer += decoder.end();
@@ -47,7 +48,7 @@ const server = http.createServer((req, res) => {
             'method' : method,
             'headers' : headers,
             'payload' : buffer
-        }
+        };
 
         //Route the request to the handler specified in the Router
         chosenHandler(data, function(statusCode, payload) {
@@ -61,19 +62,20 @@ const server = http.createServer((req, res) => {
             const payloadString = JSON.stringify(payload);
 
             //Return the response
+            res.setHeader('Content-Type', 'application/json');
             res.writeHead(statusCode);
             res.end(payloadString);
 
             //Log what path the user asked for
             console.log(`Returning this response: ${statusCode}, ${payloadString}`);
-        })   
-    })
-})
+        });  
+    });
+});
 
 //Start server and listen on port 3000
-server.listen(3000, () => {
-    console.log('The server is listening on port: 3000');
-})
+server.listen(config.port, () => {
+    console.log(`The server is listening on port ${config.port} in ${config.envName} mode`);
+});
 
 //Define handlers 
 const handlers = {};
@@ -81,12 +83,12 @@ handlers.sample = (data, callback) => {
     //Callback an http status code and a payload
     //The payload should be an Object
     callback(406, {'name' : 'sample handler'});
-}
+};
 
 //Not found handler
 handlers.notFound = (data, callback) => {
     callback(404);
-}
+};
 
 //Define a request router
 const router = {
