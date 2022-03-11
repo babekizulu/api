@@ -11,6 +11,13 @@ const fs = require('fs');
 const StringDecoder = require('string_decoder').StringDecoder;
 const config = require('./config');
 const {httpPort, httpsPort, envName} = config;
+const _data = require('./lib/data');
+
+//TESTING 
+//@TODO: Delete this
+_data.delete('test', 'newFile', err => {
+    console.log(`Error log: ${err}`);
+})
 
 //Instantiate the http server
 const httpServer = http.createServer((req, res) => {
